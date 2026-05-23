@@ -81,7 +81,14 @@ namespace ToDo.API.Controllers
             }
             catch (FluentValidation.ValidationException ex)
             {
-                return BadRequest(new { message = "Erro de validação", errors = ex.Errors });
+                // Se houver erros estruturados do FluentValidation
+                if (ex.Errors.Any())
+                {
+                    var errors = ex.Errors.Select(e => new { field = e.PropertyName, message = e.ErrorMessage }).ToList();
+                    return BadRequest(new { message = "Erro de validação", errors });
+                }
+                // Se for mensagem de texto (validação customizada)
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -107,7 +114,14 @@ namespace ToDo.API.Controllers
             }
             catch (FluentValidation.ValidationException ex)
             {
-                return BadRequest(new { message = "Erro de validação", errors = ex.Errors });
+                // Se houver erros estruturados do FluentValidation
+                if (ex.Errors.Any())
+                {
+                    var errors = ex.Errors.Select(e => new { field = e.PropertyName, message = e.ErrorMessage }).ToList();
+                    return BadRequest(new { message = "Erro de validação", errors });
+                }
+                // Se for mensagem de texto (validação customizada)
+                return BadRequest(new { message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {

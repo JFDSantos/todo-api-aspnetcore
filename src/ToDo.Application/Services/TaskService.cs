@@ -64,8 +64,7 @@ namespace ToDo.Application.Services
             var validationResult = await _createValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                throw new ValidationException(errors);
+                throw new ValidationException(validationResult.Errors);
             }
 
             // Mapear DTO para Entidade
@@ -90,8 +89,7 @@ namespace ToDo.Application.Services
             var validationResult = await _updateValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                throw new ValidationException(errors);
+                throw new ValidationException(validationResult.Errors);
             }
 
             // Obter tarefa existente
