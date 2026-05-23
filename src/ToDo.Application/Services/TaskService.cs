@@ -9,10 +9,11 @@ namespace ToDo.Application.Services
     /// <summary>
     /// Implementação do serviço de tarefas
     /// Responsabilidades:
-    ///   - Lógica de negócio (validações, mapeamentos)
+    ///   - Lógica de negócio (validações)
     ///   - Orquestração entre repositório e DTOs
     /// 
     /// Aplica: SRP (responsável apenas por lógica de aplicação)
+    /// Validação: Todas as validações de negócio aqui (ID > 0, recurso existe, etc)
     /// </summary>
     public class TaskService : ITaskService
     {
@@ -38,13 +39,24 @@ namespace ToDo.Application.Services
 
         public async Task<TaskResponseDto?> GetByIdAsync(int id)
         {
+            // Validação de negócio: ID deve ser válido
+            if (id <= 0)
+            {
+                throw new ValidationException("ID deve ser maior que zero.");
+            }
+
             var task = await _repository.GetByIdAsync(id);
-            return task != null ? MapToDto(task) : null;
+            if (task == null)
+            {
+                throw new KeyNotFoundException($"Tarefa com ID {id} não encontrada.");
+            }
+
+            return MapToDto(task);
         }
 
         public async Task<TaskResponseDto> CreateAsync(CreateTaskDto dto)
         {
-            // Validar DTO
+            // Validar DTO via FluentValidation
             var validationResult = await _createValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
@@ -64,7 +76,13 @@ namespace ToDo.Application.Services
 
         public async Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto)
         {
-            // Validar DTO
+            // Validação de negócio: ID deve ser válido
+            if (id <= 0)
+            {
+                throw new ValidationException("ID deve ser maior que zero.");
+            }
+
+            // Validar DTO via FluentValidation
             var validationResult = await _updateValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
@@ -97,8 +115,91 @@ namespace ToDo.Application.Services
 
             return MapToDto(task);
         }
+
+        public async Task<TaskResponseDto> StartAsync(int id)
+        {
+            // Validação de negócio: ID deve ser válido
+            if (id <= 0)
+            {
+                throw new ValidationException("ID deve ser maior que zero.");
+            }
+
+            var task = await _repository.GetByIdAsync(id);
+            if (task == null)
+            {
+                throw new KeyNotFoundException($"Tarefa com ID {id} não encontrada.");
+            }
+
+            if (task.Status != Domain.Enums.ETaskStatus.Pendente)
+            {
+                throw new ValidationException("A tarefa só pode ser iniciada se estiver no status Pendente.");
+            }
+
+            // Mudar status para EmProgresso (1)
+            task.Status = Domain.Enums.ETaskStatus.EmProgresso;
+
+            await _repository.UpdateAsync(task);
+            await _repository.SaveChangesAsync();
+
+            return MapToDto(task);
+        }
+
+        public async Task<TaskResponseDto> CompleteAsync(int id)
+        {
+            // Validação de negócio: ID deve ser válido
+            if (id <= 0)
+            {
+                throw new ValidationException("ID deve ser maior que zero.");
+            }
+
+            var task = await _repository.GetByIdAsync(id);
+            if (task == null)
+            {
+                throw new KeyNotFoundException($"Tarefa com ID {id} não encontrada.");
+            }
+
+            // Mudar status para Concluída (2) e setar CompletedAt automaticamente
+            task.Status = Domain.Enums.ETaskStatus.Concluida;
+            task.CompletedAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(task);
+            await _repository.SaveChangesAsync();
+
+            return MapToDto(task);
+        }
+
+        public async Task<TaskResponseDto> ReopenAsync(int id)
+        {
+            // Validação de negócio: ID deve ser válido
+            if (id <= 0)
+            {
+                throw new ValidationException("ID deve ser maior que zero.");
+            }
+
+            var task = await _repository.GetByIdAsync(id);
+            if (task == null)
+            {
+                throw new KeyNotFoundException($"Tarefa com ID {id} não encontrada.");
+            }
+
+            // Mudar status para EmProgresso (1) e zerar CompletedAt
+            task.Status = Domain.Enums.ETaskStatus.EmProgresso;
+            task.CompletedAt = null;
+
+            await _repository.UpdateAsync(task);
+            await _repository.SaveChangesAsync();
+
+            return MapToDto(task);
+        }
+
         public async Task DeleteAsync(int id)
         {
+            // Validação de negócio: ID deve ser válido
+            if (id <= 0)
+            {
+                throw new ValidationException("ID deve ser maior que zero.");
+            }
+
             var task = await _repository.GetByIdAsync(id);
             if (task == null)
             {
@@ -108,6 +209,7 @@ namespace ToDo.Application.Services
             await _repository.DeleteAsync(id);
             await _repository.SaveChangesAsync();
         }
+
         private static TaskResponseDto MapToDto(TodoTask task)
         {
             return new TaskResponseDto

@@ -15,6 +15,12 @@ namespace ToDo.Application.Services
 
         Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto);
 
+        Task<TaskResponseDto> StartAsync(int id);
+
+        Task<TaskResponseDto> CompleteAsync(int id);
+
+        Task<TaskResponseDto> ReopenAsync(int id);
+
         Task DeleteAsync(int id);
     }
 }
