@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using ToDo.Application.Dtos;
 using ToDo.Application.Validators;
@@ -20,15 +21,18 @@ namespace ToDo.Application.Services
         private readonly ITaskRepository _repository;
         private readonly IValidator<CreateTaskDto> _createValidator;
         private readonly IValidator<UpdateTaskDto> _updateValidator;
+        private readonly IMapper _mapper;
 
         public TaskService(
             ITaskRepository repository,
             IValidator<CreateTaskDto> createValidator,
-            IValidator<UpdateTaskDto> updateValidator)
+            IValidator<UpdateTaskDto> updateValidator,
+            IMapper mapper)
         {
             _repository = repository;
             _createValidator = createValidator;
             _updateValidator = updateValidator;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<TaskResponseDto>> GetAllAsync()
@@ -103,11 +107,8 @@ namespace ToDo.Application.Services
                 throw new ValidationException("A data de conclusão não pode ser anterior à data de criação.");
             }
 
-            // Atualizar propriedades
-            task.Title = dto.Title;
-            task.Description = dto.Description;
-            task.Status = dto.Status;
-            task.CompletedAt = dto.CompletedAt;
+            // Atualizar propriedades usando AutoMapper
+            _mapper.Map(dto, task);
 
             // Persistir
             await _repository.UpdateAsync(task);
