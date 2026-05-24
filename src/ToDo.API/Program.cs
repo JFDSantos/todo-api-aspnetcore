@@ -33,6 +33,17 @@ builder.Services.AddScoped<IValidator<UpdateTaskDto>, UpdateTaskValidator>();
 // Add AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// Add CORS - Permitir requisições do Frontend Angular
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "http://localhost:55624")  // Frontend Angular (portas)
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Apply migrations automatically on startup
@@ -50,6 +61,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Usar CORS antes de MapControllers
+app.UseCors("AllowFrontend");
 
 app.MapControllers();
 

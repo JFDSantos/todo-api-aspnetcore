@@ -1,0 +1,251 @@
+﻿<div class="container" [attr.aria-busy]="loading()">
+
+  <!-- Header -->
+  <header class="page-header">
+    <h1>Minhas Tarefas</h1>
+    <button class="btn btn--ghost" (click)="loadTasks()" [disabled]="loading()" aria-label="Atualizar lista de tarefas">
+      &#8635; Atualizar
+    </button>
+  </header>
+
+  <!-- Sumário -->
+  @if (!loading() && tasks().length > 0) {
+    <section class="summary-cards" aria-label="Resumo das tarefas">
+      <div class="summary-card summary-card--pendente">
+        <span class="summary-count">{{ pendentes() }}</span>
+        <span class="summary-label">Pendentes</span>
+      </div>
+      <div class="summary-card summary-card--progresso">
+        <span class="summary-count">{{ emProgresso() }}</span>
+        <span class="summary-label">Em Progresso</span>
+      </div>
+      <div class="summary-card summary-card--concluida">
+        <span class="summary-count">{{ concluidas() }}</span>
+        <span class="summary-label">Concluídas</span>
+      </div>
+    </section>
+  }
+
+  <!-- Filtro de status -->
+  @if (!loading() && tasks().length > 0) {
+    <div class="filter-bar" role="group" aria-label="Filtrar por status">
+      <button class="btn btn--filter" [class.active]="statusFilter() === null" (click)="statusFilter.set(null)">
+        Todos ({{ tasks().length }})
+      </button>
+      <button class="btn btn--filter" [class.active]="statusFilter() === 0" (click)="statusFilter.set(0)">
+        ⏳ Pendentes
+      </button>
+      <button class="btn btn--filter" [class.active]="statusFilter() === 1" (click)="statusFilter.set(1)">
+        ⚙️ Em Progresso
+      </button>
+      <button class="btn btn--filter" [class.active]="statusFilter() === 2" (click)="statusFilter.set(2)">
+        ✔ Concluídas
+      </button>
+    </div>
+  }
+
+  <!-- Erro -->
+  @if (error()) {
+    <div role="alert" class="alert--error" aria-live="assertive">
+      &#9888; {{ error() }}
+      <button class="btn btn--ghost alert-close" (click)="error.set(null)" aria-label="Fechar mensagem de erro">&#10005;</button>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div role="status" aria-live="polite" class="loading-state">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Carregando tarefas...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    @if (tasks().length === 0) {
+      <section class="empty-state" aria-label="Sem tarefas cadastradas">
+        <div class="empty-icon" aria-hidden="true">&#128203;</div>
+        <h3>Nenhuma tarefa encontrada</h3>
+        <p>Clique em <strong>+ Nova Tarefa</strong> para começar!</p>
+      </section>
+    }
+
+    @if (tasks().length > 0 && filteredTasks().length === 0) {
+      <section class="empty-state" aria-label="Sem tarefas neste filtro">
+        <div class="empty-icon" aria-hidden="true">&#128269;</div>
+        <h3>Nenhuma tarefa neste filtro</h3>
+        <p>Tente selecionar outro status acima.</p>
+      </section>
+    }
+
+    @if (filteredTasks().length > 0) {
+      <ul class="tasks-grid" role="list" aria-label="Lista de tarefas">
+        @for (task of filteredTasks(); track task.id) {
+          <li class="task-card" [class]="'task-card--' + getStatusClass(task.status)">
+
+            <div class="task-card__header">
+              <span class="task-id">#{{ task.id }}</span>
+              <span [class]="'status-badge status-badge--' + getStatusClass(task.status)" role="status">
+                {{ getStatusLabel(task.status) }}
+              </span>
+            </div>
+
+            <div class="task-card__body">
+              <h3 class="task-title">{{ task.title }}</h3>
+              @if (task.description) {
+                <p class="task-description">{{ task.description }}</p>
+              } @else {
+                <p class="task-description task-description--empty">Sem descrição</p>
+              }
+            </div>
+
+            <div class="task-card__meta">
+              <small>&#128197; Criado: <time>{{ task.createdAt | date:'dd/MM/yyyy HH:mm' }}</time></small>
+              @if (task.completedAt) {
+                <small>&#10003; Concluído: <time>{{ task.completedAt | date:'dd/MM/yyyy HH:mm' }}</time></small>
+              }
+            </div>
+
+            <div class="task-card__actions">
+              @switch (task.status) {
+                @case (0) {
+                  <button class="btn btn--start"
+                    (click)="startTask(task.id)"
+                    [disabled]="actionLoading() === task.id"
+                    [attr.aria-disabled]="actionLoading() === task.id"
+                    aria-label="Iniciar tarefa: {{ task.title }}">
+                    &#9654; Iniciar
+                  </button>
+                }
+                @case (1) {
+                  <button class="btn btn--complete"
+                    (click)="completeTask(task.id)"
+                    [disabled]="actionLoading() === task.id"
+                    [attr.aria-disabled]="actionLoading() === task.id"
+                    aria-label="Concluir tarefa: {{ task.title }}">
+                    &#10003; Concluir
+                  </button>
+                }
+                @case (2) {
+                  <button class="btn btn--reopen"
+                    (click)="reopenTask(task.id)"
+                    [disabled]="actionLoading() === task.id"
+                    [attr.aria-disabled]="actionLoading() === task.id"
+                    aria-label="Reabrir tarefa: {{ task.title }}">
+                    &#8635; Reabrir
+                  </button>
+                }
+              }
+
+              <button class="btn btn--ghost btn--edit"
+                (click)="openEdit(task)"
+                [disabled]="actionLoading() === task.id"
+                [attr.aria-label]="task.status === 2 ? 'Visualizar tarefa: ' + task.title : 'Editar tarefa: ' + task.title">
+                {{ task.status === 2 ? '&#128065; Visualizar' : '&#9998; Editar' }}
+              </button>
+
+              <button class="btn btn--danger"
+                (click)="confirmDelete(task)"
+                [disabled]="actionLoading() === task.id"
+                [attr.aria-disabled]="actionLoading() === task.id"
+                aria-label="Deletar tarefa: {{ task.title }}">
+                &#10005; Deletar
+              </button>
+            </div>
+
+          </li>
+        }
+      </ul>
+    }
+  }
+
+</div>
+
+<!-- Modal de confirmação de delete -->
+@if (deleteTarget()) {
+  <div class="modal-backdrop" (click)="cancelDelete()" role="presentation">
+    <div class="modal" role="alertdialog" aria-modal="true"
+         aria-labelledby="modal-title" aria-describedby="modal-desc"
+         (click)="$event.stopPropagation()">
+      <div class="modal-icon">&#128465;</div>
+      <h2 class="modal-title" id="modal-title">Deletar tarefa?</h2>
+      <p class="modal-desc" id="modal-desc">
+        A tarefa <strong>"{{ deleteTarget()!.title }}"</strong> será removida permanentemente.
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn--ghost" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn btn--danger btn--danger-solid" (click)="deleteTask(deleteTarget()!.id)">
+          &#10005; Sim, deletar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de edição -->
+@if (editTarget()) {
+  <div class="modal-backdrop" (click)="cancelEdit()" role="presentation">
+    <div class="modal modal--edit" role="dialog" aria-modal="true"
+         aria-labelledby="edit-modal-title"
+         (click)="$event.stopPropagation()">
+      <h2 class="modal-title" id="edit-modal-title">
+        {{ editViewOnly() ? '&#128065; Visualizar Tarefa' : '&#9998; Editar Tarefa' }} #{{ editTarget()!.id }}
+      </h2>
+
+      @if (editError()) {
+        <div role="alert" class="edit-error">{{ editError() }}</div>
+      }
+
+      <div class="edit-form">
+        <div class="edit-form-row">
+          <div class="edit-group edit-group--grow">
+            <label for="edit-title">Título <span class="required">*</span></label>
+            @if (editViewOnly()) {
+              <div class="edit-readonly">{{ editTitle }}</div>
+            } @else {
+              <input id="edit-title" type="text" [(ngModel)]="editTitle"
+                     maxlength="100" placeholder="Título da tarefa"
+                     (keydown.enter)="$event.preventDefault()" />
+              <small class="input-hint" [class.hint-warn]="editTitle.length > 90">{{ editTitle.length }}/100</small>
+            }
+          </div>
+
+          <div class="edit-group edit-group--date">
+            <label>Data de Criação</label>
+            <div class="edit-readonly">{{ editCreatedAt || '—' }}</div>
+            <small class="input-hint">&nbsp;</small>
+          </div>
+
+          <div class="edit-group edit-group--date">
+            <label for="edit-completed">Data de Conclusão</label>
+            @if (editViewOnly()) {
+              <div class="edit-readonly">{{ editCompletedAt || '—' }}</div>
+            } @else {
+              <input id="edit-completed" type="text" [(ngModel)]="editCompletedAt"
+                     placeholder="dd/mm/aaaa" maxlength="10" />
+            }
+            <small class="input-hint">&nbsp;</small>
+          </div>
+        </div>
+
+        <div class="edit-group">
+          <label for="edit-desc">Descrição</label>
+          @if (editViewOnly()) {
+            <div class="edit-readonly edit-readonly--text">{{ editDescription || 'Sem descrição' }}</div>
+          } @else {
+            <textarea id="edit-desc" [(ngModel)]="editDescription"
+                      rows="4" placeholder="Descrição da tarefa..."></textarea>
+          }
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn--ghost" (click)="cancelEdit()">Fechar</button>
+        @if (!editViewOnly()) {
+          <button class="btn btn--primary" (click)="saveEdit()" [disabled]="editLoading()">
+            {{ editLoading() ? 'Salvando...' : '&#10003; Salvar' }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

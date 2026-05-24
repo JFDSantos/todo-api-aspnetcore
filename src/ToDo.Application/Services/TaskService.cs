@@ -100,7 +100,8 @@ namespace ToDo.Application.Services
             }
 
             // Validar regra de negócio: CompletedAt não pode ser anterior a CreatedAt
-            if (dto.CompletedAt.HasValue && dto.CompletedAt < task.CreatedAt)
+            var effectiveCreatedAt = dto.CreatedAt ?? task.CreatedAt;
+            if (dto.CompletedAt.HasValue && dto.CompletedAt < effectiveCreatedAt)
             {
                 throw new ValidationException("A data de conclusão não pode ser anterior à data de criação.");
             }

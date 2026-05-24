@@ -1,0 +1,70 @@
+﻿<div class="form-wrapper">
+  <div class="form-container">
+    <div class="form-header">
+      <h1>+ Nova Tarefa</h1>
+      <p class="form-subtitle">Preencha os campos abaixo para criar uma nova tarefa</p>
+    </div>
+
+    @if (error) {
+      <div role="alert" class="form-alert form-alert--error" aria-live="assertive">
+        &#9888; {{ error }}
+      </div>
+    }
+
+    @if (fieldErrors.length > 0) {
+      <div role="alert" class="form-alert form-alert--error" aria-live="assertive">
+        <strong>Erros de validacao:</strong>
+        <ul class="error-list">
+          @for (fe of fieldErrors; track fe.field) {
+            <li>{{ fe.field }}: {{ fe.message }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <form (ngSubmit)="$event.preventDefault()" class="task-form" autocomplete="off" novalidate (keydown.enter)="$event.preventDefault()">
+      <div class="form-group">
+        <label for="title" id="title-label">Titulo <span class="required" aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="title"
+          [(ngModel)]="form.title"
+          name="title"
+          placeholder="Ex: Implementar login"
+          maxlength="100"
+          required
+          aria-required="true"
+          aria-describedby="title-hint"
+          [class.input-error]="fieldErrors.length > 0"
+        />
+        <small id="title-hint" class="input-hint" [class.hint-warn]="form.title.length > 90">
+          {{ form.title.length }}/100 caracteres
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="description">
+          Descricao <span class="optional">(opcional)</span>
+        </label>
+        <textarea
+          id="description"
+          [(ngModel)]="form.description"
+          name="description"
+          placeholder="Descreva os detalhes da tarefa..."
+          rows="4"
+          aria-describedby="desc-hint"
+        ></textarea>
+        <small id="desc-hint" class="sr-only">Campo opcional</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--primary" (click)="submitForm()" [disabled]="loading" [attr.aria-busy]="loading">
+          {{ loading ? 'Criando...' : '&#10003; Criar Tarefa' }}
+        </button>
+        <button type="button" class="btn btn--ghost" (click)="resetForm()" [disabled]="loading">
+          Limpar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

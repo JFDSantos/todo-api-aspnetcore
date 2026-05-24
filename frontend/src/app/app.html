@@ -1,0 +1,20 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <span class="navbar-icon" aria-hidden="true">&#10003;</span>
+      <span class="navbar-title">ToDo App</span>
+    </div>
+    <ul class="nav-links" role="list">
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">&#128203; Listagem</a></li>
+      <li><a routerLink="/criar" routerLinkActive="active" class="nav-create">&#43; Nova Tarefa</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <p>&#169; 2026 ToDo App &mdash; Angular + ASP.NET Core 8.0</p>
+</footer>

@@ -1,55 +1,61 @@
-# 📋 ToDo REST API
+# ?? ToDo App � Full Stack
 
-Uma API robusta e bem arquitetada para gerenciamento de tarefas, desenvolvida com **ASP.NET Core 8.0**, seguindo princípios **SOLID** e padrões de design modernos.
-
----
-
-## 🎯 Sobre o Projeto
-
-API REST completa para criar, ler, atualizar e deletar tarefas. Implementa transições de estado semânticas (State Machine Pattern) e validações robustas em múltiplas camadas.
-
-**Deadline:** 25 de maio de 2026  
-**Status:** ✅ Implementação completa
+Aplica��o completa de gerenciamento de tarefas com **Angular 21** no frontend e **ASP.NET Core 8** no backend, seguindo princ�pios **SOLID** e arquitetura em camadas.
 
 ---
 
-## 🚀 Tecnologias
+## ?? Sobre o Projeto
 
-- **ASP.NET Core 8.0** - Framework web moderno
-- **Entity Framework Core 8.0.0** - ORM para data access
-- **SQL Server** - Banco de dados relacional
-- **FluentValidation 11.9.0** - Validação fluente de dados
-- **AutoMapper 13.0.1** - Mapeamento de objetos
-- **Swagger/OpenAPI** - Documentação automática de endpoints
+Interface web moderna integrada a uma API REST robusta para criar, listar, atualizar e deletar tarefas. Implementa transi��es de estado sem�nticas (State Machine Pattern), valida��es em m�ltiplas camadas e um frontend reativo com Angular Signals.
+
+**Status:** ? Implementa��o completa
 
 ---
 
-## 📋 Pré-requisitos
+## ?? Tecnologias
 
-- **.NET 8 SDK** - [Download](https://dotnet.microsoft.com/download)
-- **SQL Server 2019+** - Instale ou use instância local
-  - Instância: `localhost\SQLEXPRESS` (padrão)
-- **Git** - Para clonar o repositório
+### Backend
+- **ASP.NET Core 8.0** � Framework web
+- **Entity Framework Core 8** � ORM / data access
+- **SQL Server** � Banco de dados relacional
+- **FluentValidation 11** � Valida��o de dados
+- **AutoMapper 13** � Mapeamento de objetos
+- **Swagger / OpenAPI** � Documenta��o de endpoints
+
+### Frontend
+- **Angular 21** � Framework SPA
+- **Angular Signals** � Reatividade sem RxJS
+- **TypeScript** � Tipagem est�tica
+- **CSS (BEM)** � Estiliza��o por componente
 
 ---
 
-## 🔧 Instalação e Setup
+## ?? Pr�-requisitos
 
-### 1. Clonar o repositório
+- **Node.js 20+** � [Download](https://nodejs.org)
+- **.NET 8 SDK** � [Download](https://dotnet.microsoft.com/download)
+- **SQL Server 2019+** � Inst�ncia local (`localhost\SQLEXPRESS`)
+
+---
+
+## ? In�cio R�pido
+
+### 1. Clonar o reposit�rio
 ```bash
-git clone https://github.com/seu-usuario/todo-api-aspnetcore.git
+git clone https://github.com/seu-usuario/todo-app.git
 cd ToDo
 ```
 
-### 2. Restaurar dependências
+### 2. Instalar depend�ncias do frontend
 ```bash
-dotnet restore
+cd frontend
+npm install
+cd ..
 ```
 
 ### 3. Configurar a Connection String
 
-Edite o arquivo `src/ToDo.API/appsettings.json`:
-
+Edite `src/ToDo.API/appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
@@ -58,396 +64,140 @@ Edite o arquivo `src/ToDo.API/appsettings.json`:
 }
 ```
 
-**Valores importantes:**
-- `Server`: Ajuste conforme sua instância SQL Server
-- `Database`: Nome do banco (será criado automaticamente)
-- `Encrypt`: `false` (para desenvolvimento local)
-
-### 4. Build do projeto
-```bash
-dotnet build
+### 4. Subir o projeto completo
+```powershell
+.\start.ps1
 ```
 
-### 5. Rodar a API
-```bash
-cd src/ToDo.API
-dotnet run
-```
+Isso abre duas janelas separadas:
+| Servi�o | URL |
+|---------|-----|
+| **Frontend** | http://localhost:4200 |
+| **Backend** | http://localhost:5273 |
 
-A API iniciará em: **https://localhost:7183**
-
-**Obs:** O banco de dados e tabelas serão criados automaticamente na primeira execução (auto-migration).
+> O banco de dados e as tabelas s�o criados automaticamente na primeira execu��o (auto-migration).
 
 ---
 
-## 🌐 Endpoints da API
+## ?? Endpoints da API
 
-Base URL: `https://localhost:7183/api`
+Base URL: `http://localhost:5273/api`
 
-### 📖 Listar todas as tarefas
+| M�todo | Endpoint | Descri��o |
+|--------|----------|-----------|
+| GET | `/tasks` | Listar todas as tarefas |
+| GET | `/tasks/{id}` | Obter tarefa por ID |
+| POST | `/tasks` | Criar nova tarefa |
+| PUT | `/tasks/{id}` | Atualizar tarefa |
+| PUT | `/tasks/{id}/start` | Iniciar tarefa |
+| PUT | `/tasks/{id}/complete` | Concluir tarefa |
+| PUT | `/tasks/{id}/reopen` | Reabrir tarefa |
+| DELETE | `/tasks/{id}` | Deletar tarefa |
+
+### Exemplo � Criar tarefa
 ```http
-GET /tasks
-```
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "title": "Implementar API",
-    "description": "Criar endpoints REST",
-    "createdAt": "2026-05-23T10:00:00Z",
-    "completedAt": null,
-    "status": 0
-  }
-]
-```
-
----
-
-### 🔍 Obter tarefa por ID
-```http
-GET /tasks/{id}
-```
-**Exemplo:**
-```http
-GET /tasks/1
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "title": "Implementar API",
-  "description": "Criar endpoints REST",
-  "createdAt": "2026-05-23T10:00:00Z",
-  "completedAt": null,
-  "status": 0
-}
-```
-
-**Response (404 Not Found):**
-```json
-{
-  "error": "Tarefa com ID 999 não encontrada."
-}
-```
-
----
-
-### ➕ Criar nova tarefa
-```http
-POST /tasks
+POST /api/tasks
 Content-Type: application/json
 
 {
-  "title": "Implementar API",
-  "description": "Criar endpoints REST"
+  "title": "Minha tarefa",
+  "description": "Descri��o opcional"
 }
 ```
 
-**Response (201 Created):**
-```json
-{
-  "id": 1,
-  "title": "Implementar API",
-  "description": "Criar endpoints REST",
-  "createdAt": "2026-05-23T10:00:00Z",
-  "completedAt": null,
-  "status": 0
-}
-```
+### C�digos de Status
 
-**Validações:**
-- ❌ Title vazio → 400 Bad Request
-- ❌ Title > 100 caracteres → 400 Bad Request
-
----
-
-### ✏️ Atualizar tarefa
-```http
-PUT /tasks/{id}
-Content-Type: application/json
-
-{
-  "title": "Implementar API (Atualizado)",
-  "description": "Criar endpoints REST com validações",
-  "status": 1,
-  "completedAt": null
-}
-```
-
-**Validações:**
-- ❌ ID ≤ 0 → 400 Bad Request
-- ❌ Tarefa não encontrada → 404 Not Found
-- ❌ CompletedAt < CreatedAt → 400 Bad Request
-
----
-
-### ▶️ Iniciar tarefa
-Transiciona de **Pendente** para **Em Progresso**.
-
-```http
-PUT /tasks/{id}/start
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "title": "Implementar API",
-  "description": "Criar endpoints REST",
-  "createdAt": "2026-05-23T10:00:00Z",
-  "completedAt": null,
-  "status": 1
-}
-```
-
----
-
-### ✅ Concluir tarefa
-Transiciona para **Concluída** e seta `completedAt` automaticamente.
-
-```http
-PUT /tasks/{id}/complete
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "title": "Implementar API",
-  "description": "Criar endpoints REST",
-  "createdAt": "2026-05-23T10:00:00Z",
-  "completedAt": "2026-05-23T11:30:00Z",
-  "status": 2
-}
-```
-
----
-
-### 🔄 Reabrir tarefa
-Transiciona de volta para **Em Progresso** e limpa `completedAt`.
-
-```http
-PUT /tasks/{id}/reopen
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "title": "Implementar API",
-  "description": "Criar endpoints REST",
-  "createdAt": "2026-05-23T10:00:00Z",
-  "completedAt": null,
-  "status": 1
-}
-```
-
----
-
-### 🗑️ Deletar tarefa
-```http
-DELETE /tasks/{id}
-```
-
-**Response (204 No Content)** - Sem corpo
-
----
-
-## 📊 Códigos de Status HTTP
-
-| Código | Significado |
+| C�digo | Significado |
 |--------|------------|
-| **200** | OK - Operação bem-sucedida |
-| **201** | Created - Recurso criado com sucesso |
-| **204** | No Content - Deletado com sucesso |
-| **400** | Bad Request - Validação falhou |
-| **404** | Not Found - Tarefa não encontrada |
-| **500** | Internal Server Error - Erro no servidor |
+| 200 | OK |
+| 201 | Created |
+| 204 | No Content (deletado) |
+| 400 | Bad Request (valida��o) |
+| 404 | Not Found |
+| 500 | Internal Server Error |
+
+### Swagger
+Com a API rodando, acesse: **http://localhost:5273/swagger**
 
 ---
 
-## 🏗️ Arquitetura
+## ?? Estado das Tarefas
 
-A API segue uma **arquitetura em camadas** com **princípios SOLID**:
+```
+Pendente (0) --start--> Em Progresso (1)
+    ?                          ?
+    +------reopen------ Conclu�da (2)
+                              ?
+                          complete
+```
+
+---
+
+## ??? Arquitetura
 
 ```
 ToDo/
-├── src/
-│   ├── ToDo.Domain/              ← Domain (Entidades, Enums, Interfaces)
-│   │   ├── Entities/
-│   │   │   └── TodoTask.cs       (Entidade principal)
-│   │   ├── Enums/
-│   │   │   └── ETaskStatus.cs    (Status: Pendente, EmProgresso, Concluída)
-│   │   └── Repositories/
-│   │       └── ITaskRepository.cs (Interface de repositório)
-│   │
-│   ├── ToDo.Application/          ← Application (DTOs, Services, Validators)
-│   │   ├── Dtos/
-│   │   │   ├── CreateTaskDto.cs
-│   │   │   ├── UpdateTaskDto.cs
-│   │   │   └── TaskResponseDto.cs
-│   │   ├── Validators/
-│   │   │   ├── CreateTaskValidator.cs
-│   │   │   └── UpdateTaskValidator.cs
-│   │   ├── Services/
-│   │   │   ├── ITaskService.cs
-│   │   │   └── TaskService.cs
-│   │   └── Mappings/
-│   │       └── MappingProfile.cs  (AutoMapper)
-│   │
-│   ├── ToDo.Infrastructure/       ← Infrastructure (EF Core, Repository, DB)
-│   │   ├── Data/
-│   │   │   └── ToDoDbContext.cs
-│   │   ├── Repositories/
-│   │   │   └── TaskRepository.cs
-│   │   └── Migrations/
-│   │
-│   └── ToDo.API/                  ← API (Controllers, Configuration)
-│       ├── Controllers/
-│       │   └── TasksController.cs (8 Endpoints)
-│       ├── Program.cs             (DI, Middleware)
-│       └── appsettings.json       (Config)
++-- frontend/                      ? Angular 21 (SPA)
+�   +-- src/app/
+�       +-- components/            (task-list, task-form, ...)
+�       +-- services/              (task.service.ts)
+�       +-- models/                (task.model.ts)
+�
++-- src/
+    +-- ToDo.Domain/               ? Entidades, Enums, Interfaces
+    +-- ToDo.Application/          ? DTOs, Services, Validators, AutoMapper
+    +-- ToDo.Infrastructure/       ? EF Core, Reposit�rios, Migrations
+    +-- ToDo.API/                  ? Controllers, Program.cs
 ```
 
-### 🔄 Fluxo de Requisição
+### Fluxo de Requisi��o
 
 ```
-Request HTTP
-    ↓
+Browser (Angular)
+    ? HTTP
 Controller (TasksController)
-    ↓ (passa DTO)
-Service (TaskService) ← Lógica de negócio, Validações
-    ↓ (passa Entidade)
-Repository (TaskRepository) ← Acesso a dados
-    ↓
+    ? DTO
+Service (TaskService)   ? L�gica de neg�cio + Valida��es
+    ? Entity
+Repository (TaskRepository)
+    ?
 Entity Framework Core + SQL Server
 ```
 
 ---
 
-## 🎨 Padrões de Design
-
-### **State Machine Pattern**
-Transições de estado semânticas através de endpoints dedicados:
-
-```
-Pendente (0) ──start──> Em Progresso (1)
-    ↑                          ↓
-    └──────reopen────── Concluída (2)
-                              │
-                          complete
-```
-
-### **Dependency Injection (DI)**
-Todos os serviços registrados no `Program.cs` para desacoplamento.
-
-### **Repository Pattern**
-Abstração de acesso a dados através de `ITaskRepository`.
-
-### **AutoMapper**
-Mapeamento automático entre DTOs e Entidades.
-
----
-
-## 📝 Status dos Endpoints
-
-| Método | Endpoint | Status | Descrição |
-|--------|----------|--------|-----------|
-| GET | `/tasks` | ✅ | Listar todas |
-| GET | `/tasks/{id}` | ✅ | Obter por ID |
-| POST | `/tasks` | ✅ | Criar nova |
-| PUT | `/tasks/{id}` | ✅ | Atualizar |
-| PUT | `/tasks/{id}/start` | ✅ | Iniciar |
-| PUT | `/tasks/{id}/complete` | ✅ | Concluir |
-| PUT | `/tasks/{id}/reopen` | ✅ | Reabrir |
-| DELETE | `/tasks/{id}` | ✅ | Deletar |
-
----
-
-## 🧪 Testando a API
-
-### Com Swagger (UI)
-1. Rode a API: `dotnet run`
-2. Acesse: https://localhost:7183/swagger/index.html
-3. Teste os endpoints diretamente na interface
-
-### Com cURL
-```bash
-# Listar tarefas
-curl -X GET https://localhost:7183/api/tasks
-
-# Criar tarefa
-curl -X POST https://localhost:7183/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Minha tarefa","description":"Descrição"}'
-```
-
-### Com Postman / Insomnia
-Importe a URL base: `https://localhost:7183/api` e comece a testar!
-
----
-
-## 🐛 Troubleshooting
-
-### "Tarefa não encontrada"
-- Verifique o ID da tarefa no banco de dados
-- Certifique-se de que a tarefa foi criada
-
-### "Erro de conexão com banco"
-- Verifique se SQL Server está rodando
-- Confirme a connection string em `appsettings.json`
-- Cheque o nome da instância: `localhost\SQLEXPRESS`
-
-### "Build falha"
-- Execute: `dotnet clean && dotnet restore && dotnet build`
-- Verifique se tem .NET 8 SDK instalado: `dotnet --version`
-
----
-
-## 📚 Estrutura do Banco de Dados
+## ?? Banco de Dados
 
 ### Tabela: Tasks
 
-| Coluna | Tipo | Descrição |
+| Coluna | Tipo | Descri��o |
 |--------|------|-----------|
-| `Id` | INT (PK) | Identificador único |
-| `Title` | VARCHAR(100) | Título (obrigatório) |
-| `Description` | VARCHAR(MAX) | Descrição (opcional) |
-| `CreatedAt` | DATETIME2 | Data de criação (auto-set) |
-| `CompletedAt` | DATETIME2 | Data de conclusão (nullable) |
-| `Status` | INT | 0=Pendente, 1=EmProgresso, 2=Concluída |
+| `Id` | INT (PK) | Identificador �nico |
+| `Title` | VARCHAR(100) | T�tulo (obrigat�rio) |
+| `Description` | VARCHAR(MAX) | Descri��o (opcional) |
+| `CreatedAt` | DATETIME2 | Data de cria��o (auto-set) |
+| `CompletedAt` | DATETIME2 | Data de conclus�o (nullable) |
+| `Status` | INT | 0=Pendente, 1=EmProgresso, 2=Conclu�da |
 
 ---
 
-## 🚀 Deployment (Próximos Passos)
+## ?? Troubleshooting
 
-- [ ] Criar pipeline CI/CD (GitHub Actions)
-- [ ] Dockerizar a aplicação
-- [ ] Deploy em Azure App Service
-- [ ] Configurar HTTPS com certificado válido
+**Erro de conex�o com banco**
+- Verifique se o SQL Server est� rodando
+- Confirme a connection string em `appsettings.json`
+
+**Frontend n�o conecta ao backend**
+- Certifique-se de que o backend est� rodando em `http://localhost:5273`
+- Verifique a configura��o de CORS em `Program.cs`
+
+**Build falha**
+```bash
+dotnet clean && dotnet restore && dotnet build
+```
 
 ---
 
-## 📄 Licença
+## ?? Licen�a
 
 MIT License
-
----
-
-## 👨‍💻 Autor
-
-Desenvolvido como parte de um desafio de desenvolvimento backend.
-
-**GitHub:** https://github.com/seu-usuario/todo-api-aspnetcore
-
----
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, abra uma [issue](https://github.com/seu-usuario/todo-api-aspnetcore/issues) no repositório.
-
----
-
-**Última atualização:** 23 de maio de 2026

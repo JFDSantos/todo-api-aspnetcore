@@ -26,7 +26,8 @@ namespace ToDo.Application.Mappings
             // Mapear UpdateTaskDto → TodoTask
             CreateMap<UpdateTaskDto, TodoTask>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(
+                    (src, dest) => src.CreatedAt.HasValue ? src.CreatedAt.Value : dest.CreatedAt));
         }
     }
 }
