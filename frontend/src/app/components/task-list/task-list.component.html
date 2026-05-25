@@ -99,9 +99,9 @@
             </div>
 
             <div class="task-card__meta">
-              <small>&#128197; Criado: <time>{{ task.createdAt | date:'dd/MM/yyyy HH:mm' }}</time></small>
+              <small>&#128197; Criado: <time>{{ task.createdAt | date:'dd/MM/yyyy HH:mm':'America/Sao_Paulo':'pt-BR' }}</time></small>
               @if (task.completedAt) {
-                <small>&#10003; Concluído: <time>{{ task.completedAt | date:'dd/MM/yyyy HH:mm' }}</time></small>
+                <small>&#10003; Concluído: <time>{{ task.completedAt | date:'dd/MM/yyyy HH:mm':'America/Sao_Paulo':'pt-BR' }}</time></small>
               }
             </div>
 
@@ -208,22 +208,23 @@
               <small class="input-hint" [class.hint-warn]="editTitle.length > 90">{{ editTitle.length }}/100</small>
             }
           </div>
+        </div>
 
+        <div class="edit-form-row">
           <div class="edit-group edit-group--date">
             <label>Data de Criação</label>
             <div class="edit-readonly">{{ editCreatedAt || '—' }}</div>
-            <small class="input-hint">&nbsp;</small>
           </div>
 
-          <div class="edit-group edit-group--date">
+          <div class="edit-group edit-group--date-conclusion">
             <label for="edit-completed">Data de Conclusão</label>
             @if (editViewOnly()) {
               <div class="edit-readonly">{{ editCompletedAt || '—' }}</div>
             } @else {
               <input id="edit-completed" type="text" [(ngModel)]="editCompletedAt"
-                     placeholder="dd/mm/aaaa" maxlength="10" />
+                     (input)="applyDatetimeMask($event)"
+                     placeholder="dd/mm/aaaa HH:mm" maxlength="16" inputmode="numeric" />
             }
-            <small class="input-hint">&nbsp;</small>
           </div>
         </div>
 

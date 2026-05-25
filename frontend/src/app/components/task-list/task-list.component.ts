@@ -30,8 +30,8 @@ export class TaskListComponent implements OnInit {
   editViewOnly = signal(false);
   editTitle = '';
   editDescription = '';
-  editCompletedAt = ''; // formato YYYY-MM-DD para input[type=date]
-  editCreatedAt = '';   // formato YYYY-MM-DD para input[type=date]
+  editCompletedAt = ''; // dd/MM/yyyy HH:mm (campo único com máscara)
+  editCreatedAt = '';    // dd/MM/yyyy HH:mm (readonly, display)
   editLoading = signal(false);
   editError = signal<string | null>(null);
 
@@ -126,14 +126,15 @@ export class TaskListComponent implements OnInit {
     const task = this.editTarget();
     if (!task) return;
     if (!this.editTitle.trim()) { this.editError.set('O título é obrigatório.'); return; }
-    this.editLoading.set(true);
-    const rawCompletedAt = this.fromDisplayDate(this.editCompletedAt);
-    if (this.editCompletedAt && !rawCompletedAt) {
-      this.editError.set('Data de conclusão inválida. Use o formato dd/mm/aaaa.');
-      this.editLoading.set(false);
+    const dtMatch = this.editCompletedAt.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/);
+    if (this.editCompletedAt && !dtMatch) {
+      this.editError.set('Preencha a data e hora de conclusão no formato dd/mm/aaaa HH:mm.');
       return;
     }
-    const completedAt = rawCompletedAt ? `${rawCompletedAt}T00:00:00` : null;
+    this.editLoading.set(true);
+    const completedAt = dtMatch
+      ? `${dtMatch[3]}-${dtMatch[2]}-${dtMatch[1]}T${dtMatch[4]}:${dtMatch[5]}:00`
+      : null;
 
     this.taskService.updateTask(task.id, {
       title: this.editTitle.trim(),
@@ -146,8 +147,8 @@ export class TaskListComponent implements OnInit {
         this.editTarget.set(null);
         this.editLoading.set(false);
       },
-      error: () => {
-        this.editError.set('Erro ao salvar. Tente novamente.');
+      error: (ex) => {
+        this.editError.set(ex.error?.message || 'Erro ao salvar tarefa. Verifique os dados.');
         this.editLoading.set(false);
       }
     });
@@ -168,19 +169,24 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  private toDisplayDate(iso: string): string {
-    const d = iso.substring(0, 10); // yyyy-MM-dd
-    const [y, m, day] = d.split('-');
-    return `${day}/${m}/${y}`;
+  applyDatetimeMask(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').substring(0, 12);
+    let masked = digits.substring(0, 2);
+    if (digits.length > 2)  masked += '/' + digits.substring(2, 4);
+    if (digits.length > 4)  masked += '/' + digits.substring(4, 8);
+    if (digits.length > 8)  masked += ' ' + digits.substring(8, 10);
+    if (digits.length > 10) masked += ':' + digits.substring(10, 12);
+    input.value = masked;
+    this.editCompletedAt = masked;
   }
 
-  private fromDisplayDate(display: string): string | null {
-    if (!display) return null;
-    const parts = display.split('/');
-    if (parts.length !== 3) return null;
-    const [day, m, y] = parts;
-    if (day.length !== 2 || m.length !== 2 || y.length !== 4) return null;
-    return `${y}-${m}-${day}`;
+  private toDisplayDate(iso: string): string {
+    return new Date(iso).toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    }).replace(',', '');
   }
 
   private updateTask(updated: Task): void {

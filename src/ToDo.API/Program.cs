@@ -11,7 +11,12 @@ using ToDo.Domain.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        // Garante que DateTime seja serializado com 'Z' (UTC) para o frontend interpretar corretamente
+        opts.JsonSerializerOptions.Converters.Add(new ToDo.API.Infrastructure.UtcDateTimeConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
