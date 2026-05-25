@@ -25,7 +25,7 @@ namespace ToDo.Domain.Entities
 
         public TodoTask()
         {
-            CreatedAt = DateTime.UtcNow;
+            CreatedAt = DateTime.Now;
             Status = ETaskStatus.Pendente;
         }
 

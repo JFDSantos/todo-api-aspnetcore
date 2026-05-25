@@ -160,7 +160,7 @@ namespace ToDo.Application.Services
 
             // Mudar status para Concluída (2) e setar CompletedAt automaticamente
             task.Status = Domain.Enums.ETaskStatus.Concluida;
-            task.CompletedAt = DateTime.UtcNow;
+            task.CompletedAt = DateTime.Now;
 
             await _repository.UpdateAsync(task);
             await _repository.SaveChangesAsync();

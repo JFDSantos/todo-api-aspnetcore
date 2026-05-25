@@ -132,6 +132,7 @@ export class TaskListComponent implements OnInit {
       return;
     }
     this.editLoading.set(true);
+    // Interpreta o horário digitado como local (BRT) e converte para UTC antes de enviar
     const completedAt = dtMatch
       ? `${dtMatch[3]}-${dtMatch[2]}-${dtMatch[1]}T${dtMatch[4]}:${dtMatch[5]}:00`
       : null;
@@ -140,6 +141,7 @@ export class TaskListComponent implements OnInit {
       title: this.editTitle.trim(),
       description: this.editDescription.trim(),
       status: completedAt ? TaskStatus.Concluida : TaskStatus.EmProgresso,
+      createdAt: task.createdAt, 
       completedAt
     }).subscribe({
       next: (updated) => {
@@ -182,11 +184,13 @@ export class TaskListComponent implements OnInit {
   }
 
   private toDisplayDate(iso: string): string {
-    return new Date(iso).toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', hour12: false
-    }).replace(',', '');
+    const dt = new Date(iso);
+    const day  = String(dt.getDate()).padStart(2, '0');
+    const mon  = String(dt.getMonth() + 1).padStart(2, '0');
+    const year = dt.getFullYear();
+    const hh   = String(dt.getHours()).padStart(2, '0');
+    const mm   = String(dt.getMinutes()).padStart(2, '0');
+    return `${day}/${mon}/${year} ${hh}:${mm}`;
   }
 
   private updateTask(updated: Task): void {

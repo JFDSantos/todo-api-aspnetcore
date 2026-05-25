@@ -99,9 +99,9 @@
             </div>
 
             <div class="task-card__meta">
-              <small>&#128197; Criado: <time>{{ task.createdAt | date:'dd/MM/yyyy HH:mm':'America/Sao_Paulo':'pt-BR' }}</time></small>
+              <small>&#128197; Criado: <time>{{ task.createdAt | date:'dd/MM/yyyy HH:mm':'':'pt-BR' }}</time></small>
               @if (task.completedAt) {
-                <small>&#10003; Concluído: <time>{{ task.completedAt | date:'dd/MM/yyyy HH:mm':'America/Sao_Paulo':'pt-BR' }}</time></small>
+                <small>&#10003; Concluído: <time>{{ task.completedAt | date:'dd/MM/yyyy HH:mm':'':'pt-BR' }}</time></small>
               }
             </div>
 
